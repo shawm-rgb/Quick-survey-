@@ -1,0 +1,528 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Little Question</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg,#fff0f5,#f8d9e9);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: #49313f;
+}
+
+.container {
+    text-align: center;
+    width: 90%;
+    max-width: 420px;
+    padding: 30px 20px;
+    background: #ffffff;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px #bd789c35;
+    position: relative;
+    z-index: 1;
+}
+
+.heart {
+    font-size: 45px;
+    animation: heartbeat 1.2s infinite;
+}
+
+@keyframes heartbeat {
+    50% { transform: scale(1.15); }
+}
+
+h1 {
+    font-size: 24px;
+}
+
+#question {
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 25px 0;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    min-height: 75px;
+}
+
+button {
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all .35s ease;
+}
+
+#yes {
+    background: #ff69a5;
+    color: white;
+    padding: 17px 36px;
+    font-size: 20px;
+    box-shadow: 0 5px 15px #ff69a555;
+    z-index: 5;
+}
+
+#no {
+    background: #eeeeee;
+    color: #555;
+    padding: 12px 24px;
+    z-index: 6;
+}
+
+#attempts {
+    color: #b18a9e;
+    font-size: 12px;
+    margin-top: 25px;
+}
+
+/* SYSTEM NOTIFICATION */
+
+.notification {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translate(-50%,-150%);
+    width: calc(100% - 30px);
+    max-width: 420px;
+    background: #fff;
+    border-radius: 17px;
+    padding: 17px;
+    z-index: 20;
+    box-shadow: 0 8px 30px #0003;
+    transition: transform .45s ease;
+}
+
+.notification.show {
+    transform: translate(-50%,0);
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.notif-title {
+    font-weight: bold;
+    color: #ff5595;
+    font-size: 16px;
+    margin-bottom: 7px;
+}
+
+.notif-message {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ERROR POPUP */
+
+.error-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #0008;
+    z-index: 15;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.error-box {
+    background: #fff;
+    width: 100%;
+    max-width: 340px;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: errorAppear .3s ease;
+    box-shadow: 0 15px 50px #0005;
+}
+
+@keyframes errorAppear {
+    from {
+        opacity: 0;
+        transform: scale(.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.error-header {
+    background: #f0f0f0;
+    color: #555;
+    padding: 13px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.error-content {
+    padding: 25px;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 40px;
+}
+
+.error-content h2 {
+    color: #ff537c;
+    font-size: 20px;
+}
+
+#errorQuestion {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+#retry {
+    background: #ff659d;
+    color: white;
+    padding: 13px 30px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* YES TAKES OVER THE SCREEN */
+
+body.final-stage {
+    background: #ff75aa;
+}
+
+body.final-stage .container {
+    background: transparent;
+    box-shadow: none;
+}
+
+#yes.final {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+    font-size: clamp(45px,12vw,90px);
+    padding: 0;
+    z-index: 10;
+    animation: grow .7s ease forwards;
+}
+
+@keyframes grow {
+    from { transform: scale(.2); }
+    to { transform: scale(1); }
+}
+
+#no.final-no {
+    position: fixed;
+    z-index: 12;
+    bottom: 18px;
+    right: 15px;
+    opacity: .85;
+}
+
+/* HAPPY CAT */
+
+.celebration {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(145deg,#fff6fa,#ffe0ee);
+    z-index: 50;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.celebration h1 {
+    color: #ff5595;
+    font-size: clamp(42px,12vw,65px);
+    animation: textPop .7s ease infinite alternate;
+}
+
+@keyframes textPop {
+    to { transform: scale(1.08); }
+}
+
+.cat {
+    font-size: 145px;
+    position: relative;
+    animation: jump .65s infinite alternate ease-in-out;
+    filter: drop-shadow(0 10px 5px #d68aa955);
+}
+
+@keyframes jump {
+    from { transform: translateY(12px) rotate(-5deg); }
+    to { transform: translateY(-35px) rotate(5deg); }
+}
+
+.party {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-12deg);
+    font-size: 50px;
+}
+
+.confetti {
+    position: absolute;
+    font-size: 25px;
+    animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+    from { transform: translateY(-100px) rotate(0); }
+    to { transform: translateY(110vh) rotate(600deg); }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="main">
+
+    <div class="heart">💗</div>
+
+    <h1>Hey, you!</h1>
+
+    <p id="question">
+        Am I cute, kind, calm, quiet, friendly, funny?
+    </p>
+
+    <div class="buttons">
+        <button id="yes" onclick="sayYes()">YES</button>
+        <button id="no" onclick="sayNo()">NO</button>
+    </div>
+
+    <div id="attempts">Attempts: 0</div>
+
+</div>
+
+<!-- SYSTEM NOTIFICATION -->
+
+<div class="notification" id="notification">
+    <div class="notif-header">
+        <span>● SYSTEM NOTIFICATION</span>
+        <span>JUST NOW</span>
+    </div>
+    <div class="notif-title" id="notifTitle">PLEASE READ!</div>
+    <div class="notif-message" id="notifMessage"></div>
+</div>
+
+<!-- FAKE ERROR -->
+
+<div class="error-screen" id="errorScreen">
+    <div class="error-box">
+        <div class="error-header">
+            <span>⚠ SYSTEM ERROR</span>
+            <span>✕</span>
+        </div>
+
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h2 id="errorTitle">WAIT A MINUTE!</h2>
+            <p id="errorQuestion"></p>
+            <button id="retry" onclick="closeError()">
+                TRY AGAIN
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- CELEBRATION -->
+
+<div class="celebration" id="celebration">
+    <h1>YEHEY!!</h1>
+
+    <div class="cat">
+        <div class="party">🥳</div>
+        🐱
+    </div>
+
+    <h2>You finally said YES!!</h2>
+    <p>THANK YOU SO MUCH! 💗</p>
+</div>
+
+<script>
+
+let count = 0;
+
+const notificationMessages = [
+    ["WAIT WHAT?!", "Why did you press NO? Are you sure? 🥺"],
+    ["SYSTEM WARNING", "Excuse me?! Can you please reconsider?"],
+    ["HELLO?!", "Why NO? I thought we were friends! 😭"],
+    ["PLEASEEE", "Just press YES. It's literally one button!"],
+    ["CRITICAL ERROR", "Your answer is making the system sad."],
+    ["ARE YOU SERIOUS?", "WHY DO YOU KEEP SAYING NOOO?"],
+    ["SYSTEM OVERLOAD", "I am running out of ways to ask nicely."],
+    ["I'M BEGGING", "Please? Pretty please? With a cherry on top?"],
+    ["LAST CHANCE", "This is your LAST CHANCE. PLEASE SAY YES!"],
+    ["FINAL SYSTEM MESSAGE", "WHY?! WHAT DID I DO?! PLEASE PRESS YES 😭"]
+];
+
+const errorMessages = [
+    ["ERROR 001", "Wait... WHY DID YOU SAY NO? Do you have a reason?"],
+    ["ERROR 002", "Are you sure? Please think about it again!"],
+    ["ERROR 003", "WHY NOT? Am I not cute enough? 😭"],
+    ["ERROR 004", "This answer cannot be processed. Please reconsider!"],
+    ["ERROR 005", "Please explain WHY you keep pressing NO!"],
+    ["ERROR 006", "I'M BEGGING YOU. JUST PRESS YES!"],
+    ["ERROR 007", "The system is getting tired of your NO!"],
+    ["ERROR 008", "PLEASEEEE. WHAT DO I HAVE TO DO?"],
+    ["ERROR 009", "LAST CHANCE! Are you REALLY sure?"],
+    ["ERROR 010", "FINAL ERROR. WHY ARE YOU DOING THIS TO ME?!"]
+];
+
+const yes = document.getElementById("yes");
+const no = document.getElementById("no");
+
+function sayNo() {
+
+    count++;
+
+    document.getElementById("attempts").innerText =
+        "Attempts: " + count;
+
+    // Make YES grow after every NO
+
+    let size = 20 + count * 9;
+
+    yes.style.fontSize = size + "px";
+    yes.style.padding =
+        (17 + count * 3) + "px " +
+        (36 + count * 5) + "px";
+
+    // Notification
+
+    let index = Math.min(count - 1, 9);
+
+    document.getElementById("notifTitle").innerText =
+        notificationMessages[index][0];
+
+    document.getElementById("notifMessage").innerText =
+        notificationMessages[index][1];
+
+    let notif = document.getElementById("notification");
+
+    notif.classList.remove("show");
+
+    setTimeout(() => {
+        notif.classList.add("show");
+    }, 50);
+
+    // Error question
+
+    document.getElementById("errorTitle").innerText =
+        errorMessages[index][0];
+
+    document.getElementById("errorQuestion").innerText =
+        errorMessages[index][1];
+
+    document.getElementById("errorScreen").style.display =
+        "flex";
+
+    // Ninth attempt: last chance
+
+    if (count === 9) {
+        document.getElementById("notifTitle").innerText =
+            "⚠ LAST CHANCE!";
+
+        document.getElementById("notifMessage").innerText =
+            "You have pressed NO 9 times. This is your last chance! Please say YES!";
+
+        document.getElementById("question").innerText =
+            "LAST CHANCE: Am I cute, kind, calm, quiet, friendly, funny?";
+    }
+
+    // Tenth attempt: YES takes over
+
+    if (count >= 10) {
+
+        document.body.classList.add("final-stage");
+
+        yes.classList.add("final");
+        no.classList.add("final-no");
+
+        document.getElementById("question").innerText =
+            "OKAY. NOW PLEASE.";
+
+        document.getElementById("notifTitle").innerText =
+            "SYSTEM TAKEOVER";
+
+        document.getElementById("notifMessage").innerText =
+            "THE YES BUTTON HAS TAKEN OVER THE SCREEN. PLEASE SAY YES! 😭";
+    }
+
+}
+
+function closeError() {
+
+    document.getElementById("errorScreen").style.display =
+        "none";
+
+}
+
+function sayYes() {
+
+    document.getElementById("errorScreen").style.display =
+        "none";
+
+    document.getElementById("notification").classList.remove("show");
+
+    document.getElementById("main").style.display = "none";
+
+    document.getElementById("celebration").style.display =
+        "flex";
+
+    // Falling confetti
+
+    const symbols = ["💗","🎉","✨","💕","🌸","🎊"];
+
+    for(let i = 0; i < 35; i++) {
+
+        let piece = document.createElement("div");
+
+        piece.className = "confetti";
+
+        piece.innerText =
+            symbols[Math.floor(Math.random() * symbols.length)];
+
+        piece.style.left = Math.random() * 100 + "%";
+
+        piece.style.animationDelay =
+            Math.random() * 3 + "s";
+
+        piece.style.animationDuration =
+            (2 + Math.random() * 3) + "s";
+
+        document.getElementById("celebration").appendChild(piece);
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
